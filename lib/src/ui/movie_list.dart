@@ -3,60 +3,62 @@ import 'package:flutter/material.dart';
 import '../blocs/movies_bloc.dart';
 import '../models/item_model.dart';
 
-class MovieList extends StatelessWidget {
+class MovieList extends StatefulWidget {
+  const MovieList({Key? key}) : super(key: key);
+
+  @override
+  State<MovieList> createState() => _MovieListState();
+}
+
+class _MovieListState extends State<MovieList> {
   @override
   Widget build(BuildContext context) {
     bloc.fetchAllMovies();
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Popular Movies'),
-      ),
-      body: StreamBuilder(
-        stream: bloc.allMovies,
-        builder: (context, AsyncSnapshot<ItemModel> snapshot) {
-          if (snapshot.hasData) {
-            return buildList(snapshot);
-          } else if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          }
-          return Center(child: CircularProgressIndicator());
-        },
-      ),
+    return StreamBuilder(
+      stream: bloc.allMovies,
+      builder: (context, AsyncSnapshot<ItemModel> snapshot) {
+        if (snapshot.hasData) {
+          return buildList(snapshot);
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error.toString());
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
     );
   }
+}
 
-  Widget buildList(AsyncSnapshot<ItemModel> snapshot) {
-    return ListView.builder(
-        itemCount: snapshot.data!.results.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Details(snapshot.data!, index))),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: 500,
-              child: Column(
-                children: [
-                  Image.network(
-                    'https://image.tmdb.org/t/p/w185${snapshot.data!.results[index].poster_path}',
-                    fit: BoxFit.cover,
-                    height: 400,
+Widget buildList(AsyncSnapshot<ItemModel> snapshot) {
+  return ListView.builder(
+      itemCount: snapshot.data!.results.length,
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Details(snapshot.data!, index))),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: 500,
+            child: Column(
+              children: [
+                Image.network(
+                  'https://image.tmdb.org/t/p/w185${snapshot.data!.results[index].poster_path}',
+                  fit: BoxFit.cover,
+                  height: 400,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 30),
+                  child: Text(
+                    snapshot.data!.results[index].original_title,
+                    style: const TextStyle(fontSize: 20),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30),
-                    child: Text(
-                      snapshot.data!.results[index].original_title,
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             ),
-          );
-        });
-  }
+          ),
+        );
+      });
 }
 
 class Details extends StatelessWidget {
@@ -68,14 +70,14 @@ class Details extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-            image: DecorationImage(
-                image: NetworkImage(
-                    'https://image.tmdb.org/t/p/w185${info.results[index].poster_path}'),
-                fit: BoxFit.fill)),
+        // decoration: BoxDecoration(
+        //     image: DecorationImage(
+        //         image: NetworkImage(
+        //             'https://image.tmdb.org/t/p/w185${info.results[index].poster_path}'),
+        //         fit: BoxFit.fill)),
         child: SafeArea(
           child: Column(
             children: [
@@ -113,9 +115,9 @@ class Details extends StatelessWidget {
                 children: [
                   Text(
                     '${info.results[index].vote_average}',
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 20),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.star_rounded,
                     color: Colors.yellow,
                   ),
